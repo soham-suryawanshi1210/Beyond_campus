@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="main.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> -->
+</head>
+<body>
+
+    <div class="container">
+        <div class="back-button">
+            <a href="main.html">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </a>
+        </div>
+        <h1>User Profile</h1>
+        <div class="profile-card">
+        <div class="profile-header">
+            <img id="profile-picture" src="default.jpg" alt="Profile Picture">
+            <div class="profile-info"><p style="font-size: 20px;font-weight: bold;">Name:</p>
+                <h2 id="full-name"></h2>
+            </div>
+        </div>
+    <hr class="line">
+        <div class="details">
+            <p><strong>Email:</strong> <span id="email"></span></p>
+            <p><strong>Branch:</strong> <span id="branch"></span></p>
+            <p><strong>Passing Year:</strong> <span id="passing-year"></span></p>
+            <p><strong>Company:</strong> <span id="company"></span></p>
+            <p><strong>Designation:</strong> <span id="designation"></span></p>
+            <p><strong>LinkedIn:</strong> <a id="linkedin-url" href="#" target="_blank">View Profile</a></p>
+            <hr class="line">
+            <p><strong>Achievements:</strong></p>
+            <ul id="achievements"></ul>
+        </div>
+    </div>
+
+    <script>
+        
+        document.addEventListener("DOMContentLoaded", async () => {
+    const email = localStorage.getItem("username");
+    console.log("Fetching profile for:", email); // Debugging
+
+    if (!email) {
+        alert("You must be logged in to view your profile.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/get-profile/${(email)}`);
+        const data = await response.json();
+        console.log("API Response:", data); // Debugging
+
+        if (response.ok) {
+            document.getElementById("profile-picture").src = data.profile_picture || "default.jpg";
+            document.getElementById("full-name").innerText = data.first_name + " " + data.last_name;
+            document.getElementById("email").innerText = data.email;
+            document.getElementById("branch").innerText = data.branch;
+            document.getElementById("passing-year").innerText = data.passing_year;
+            document.getElementById("company").innerText = data.company;
+            document.getElementById("designation").innerText = data.designation;
+            document.getElementById("linkedin-url").href = data.linkedin_url;
+
+            const achievementsList = document.getElementById("achievements");
+achievementsList.innerHTML = "";
+
+if (data.achievements) {
+    const achievementsArray = data.achievements
+        .split(",")
+        .map(achievement => achievement.trim().replace(/[^a-zA-Z0-9\s]/g, "")) // Remove special characters
+        .filter(achievement => achievement.length > 0); // Remove empty values
+
+    const uniqueAchievements = [...new Set(achievementsArray)]; // Remove duplicates
+
+    if (uniqueAchievements.length > 0) {
+        achievementsList.innerHTML = uniqueAchievements
+            .map(achievement => `<li>${achievement}</li>`)
+            .join("");
+    } else {
+        achievementsList.innerHTML = "<li>No achievements listed</li>";
+    }
+} else {
+    achievementsList.innerHTML = "<li>No achievements listed</li>";
+}
+
+        } else {
+            console.error("Error fetching profile:", data.error);
+        }
+    } catch (error) {
+        console.error("Fetch error:", error);
+    }
+});
+
+    </script>
+
+    <style>
+
+        .container {
+            width: 50%;
+            margin: 50px auto;
+            height: auto;
+            text-align: left;
+            font-family: Arial, sans-serif;
+            color: black;
+            border: 4px solid #007BFF ;
+            border-radius: 20px;
+        }
+        .profile-card {
+            background: #edecec;
+            color: black;
+            text-align: left;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px gray;
+            border:3px solid #784BA0;
+        }
+        .profile-header {
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
+    flex-direction: row-reverse; 
+    margin-bottom: 20px;
+    /* margin-left: 60px; */
+}
+        img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 80px;
+            border: 3px solid #784BA0;
+        }
+        strong{
+            font-weight: bold;
+            
+        }
+        h1{
+            text-align: center;
+            color: #FF3CAC;
+            text-shadow:2px 2px 12px #FF3CAC;
+        }
+        #full-name{
+          font-size: 2.5rem;
+          margin-left: 120px;
+           
+        }
+        #achievements{
+            display:grid;
+           grid-template-columns: repeat(2,1fr);
+           justify-content: space-evenly;
+        }
+        .line{
+          border: 1px solid #784BA0;
+          box-shadow: 2px 2px 5px #a4a3a5;
+        }
+        .back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.back-button a {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    color: #333;
+    text-decoration: none;
+    background-color: #f1f1f1;
+    padding: 8px 12px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in;
+}
+
+.back-button a i {
+    margin-right: 5px;
+    color: #e80404;
+}
+
+.back-button a:hover {
+    background-color: #969696;
+}
+    </style>
+
+</body>
+</html>
